@@ -1,6 +1,6 @@
 import smbus		# import SMBus module of I2C
 import math
-import config
+from config import config
 
 class CompassAdapter:
 
@@ -16,8 +16,8 @@ class CompassAdapter:
         self.pi = 3.14159265359  # define pi value
 
         self.bus = smbus.SMBus(1)
-        self.declination = config.Declination
-        self.device_address = config.Device_address
+        self.declination = config.DECLINATION
+        self.device_address = config.DEVICE_ADDRESS
 
     def magnetometer_init(self):
         # write to Configuration Register A
