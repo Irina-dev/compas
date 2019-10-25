@@ -6,33 +6,33 @@ class CompassAdapter:
 
     def __init__(self):
         # some MPU6050 Registers and their Address
-        self.register_A = 0  # Address of Configuration register A
-        self.register_B = 0x01  # Address of configuration register B
-        self.register_mode = 0x02  # Address of mode register
+        self.__register_A = 0  # Address of Configuration register A
+        self.__register_B = 0x01  # Address of configuration register B
+        self.__register_mode = 0x02  # Address of mode register
 
-        self.x_axis_H = 0x03  # Address of X-axis MSB data register
-        self.z_axis_H = 0x05  # Address of Z-axis MSB data register
-        self.y_axis_H = 0x07  # Address of Y-axis MSB data register
-        self.pi = 3.14159265359  # define pi value
+        self.__x_axis_H = 0x03  # Address of X-axis MSB data register
+        self.__z_axis_H = 0x05  # Address of Z-axis MSB data register
+        self.__y_axis_H = 0x07  # Address of Y-axis MSB data register
+        self.__pi = 3.14159265359  # define pi value
 
-        self.bus = smbus.SMBus(1)
-        self.declination = config.DECLINATION
-        self.device_address = config.DEVICE_ADDRESS
+        self.__bus = smbus.SMBus(1)
+        self.__declination = config.DECLINATION
+        self.__device_address = config.DEVICE_ADDRESS
 
     def magnetometer_init(self):
         # write to Configuration Register A
-        self.bus.write_byte_data( self.device_address, self.register_A, 0x70)
+        self.__bus.write_byte_data( self.__device_address, self.__register_A, 0x70)
 
         # Write to Configuration Register B for gain
-        self.bus.write_byte_data( self.device_address, self.register_B, 0xa0)
+        self.__bus.write_byte_data( self.__device_address, self.__register_B, 0xa0)
 
         # Write to mode Register for selecting mode
-        self.bus.write_byte_data( self.device_address, self.register_mode, 0)
+        self.__bus.write_byte_data( self.__device_address, self.__register_mode, 0)
 
     def read_raw_data(self, addr):
         # Read raw 16-bit value
-        high = self.bus.read_byte_data( self.device_address, addr)
-        low = self.bus.read_byte_data( self.device_address, addr + 1)
+        high = self.__bus.read_byte_data( self.__device_address, addr)
+        low = self.__bus.read_byte_data( self.__device_address, addr + 1)
 
         # concatenate higher and lower value
         value = ((high << 8) | low)
@@ -49,19 +49,19 @@ class CompassAdapter:
         while True:
 
             # Read Accelerometer raw value
-            x = self.read_raw_data(self.x_axis_H)
-            z = self.read_raw_data(self.z_axis_H)
-            y = self.read_raw_data(self.y_axis_H)
+            x = self.read_raw_data(self.__x_axis_H)
+            z = self.read_raw_data(self.__z_axis_H)
+            y = self.read_raw_data(self.__y_axis_H)
 
-            heading = math.atan2(y, x) + self.declination
+            heading = math.atan2(y, x) + self.__declination
 
             # Due to declination check for >360 degree
-            if (heading > 2 * self.pi):
-                heading = heading - 2 * self.pi
+            if (heading > 2 * self.__pi):
+                heading = heading - 2 * self.__pi
 
             # check for sign
             if (heading < 0):
-                heading = heading + 2 * self.pi
+                heading = heading + 2 * self.__pi
 
             # convert into angle
-            return int(heading * 180 / self.pi) # heading_angle
+            return int(heading * 180 / self.__pi) # heading_angle
